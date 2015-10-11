@@ -3,6 +3,7 @@ package com.liukwarm.mapsample;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,7 +17,9 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -47,9 +50,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends FragmentActivity {
@@ -58,7 +65,7 @@ public class MapsActivity extends FragmentActivity {
     private final LatLngBounds UCBSTART = new LatLngBounds(new LatLng(37, -110), new LatLng(38, -125));
     private final LatLng UCBCENTER = new LatLng(37.8715, -122.259);
     private final CameraPosition UCBPOSITION = new CameraPosition.Builder().target(UCBCENTER).bearing(84).tilt(1).zoom(15).build();
-    private HashSet<JSONObject> restRooms;
+    private HashMap<String, CustomMarker> restRooms;
     private ClusterManager<CustomMarker> mClusterManager;
     private Location location;
     private GoogleApiClient mGoogleApiClient;
@@ -67,7 +74,8 @@ public class MapsActivity extends FragmentActivity {
     private JSONObject user;
     private HashMap<String, JSONObject> visited;
     private boolean userUpdate = false;
-
+    private LocationManager lm;
+    private ArrayList<NavDrawerItem> list;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +95,7 @@ public class MapsActivity extends FragmentActivity {
 
         }
 
-        restRooms = new HashSet<JSONObject>();
+        restRooms = new HashMap<String, CustomMarker>();
 
         setUpClusterer();
 
@@ -112,7 +120,7 @@ public class MapsActivity extends FragmentActivity {
         });
 
         // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
         locationListener = new LocationListener() {
@@ -137,14 +145,77 @@ public class MapsActivity extends FragmentActivity {
             public void onProviderDisabled(String provider) {}
         };
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-        Button button = (Button) findViewById(R.id.new_button);
+        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        android.support.design.widget.FloatingActionButton button = (android.support.design.widget.FloatingActionButton) findViewById(R.id.new_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 newRestroom(v);
             }
         });
 
+        list = new ArrayList<NavDrawerItem>();
+        setList();
+
+
+    }
+
+    private void setList() {
+        TreeMap<Double, JSONObject> tm = new TreeMap<Double, JSONObject>();
+
+        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+        for (String s : restRooms.keySet()) {
+            JSONObject rr = restRooms.get(s).getRR();
+            double distance = -1;
+            try {
+                Location l2 = new Location("");
+                l2.setLatitude(rr.getDouble("lat"));
+                l2.setLongitude(rr.getDouble("lng"));
+                distance = location.distanceTo(l2);
+            } catch (JSONException e) {}
+            if (distance != -1 && distance < 1600)
+                tm.put(distance, rr);
+        }
+
+        TypedArray numbers = getResources()
+                .obtainTypedArray(R.array.numbers);
+        ArrayList<NavDrawerItem> list = new ArrayList<NavDrawerItem>();
+
+        NumberFormat formatter = new DecimalFormat("#0.0");
+        for (int i = 0; i < 10 && !tm.isEmpty(); i++) {
+            double distance = tm.firstKey();
+            JSONObject rr = tm.remove(tm.firstKey());
+            try {
+                list.add(new NavDrawerItem(numbers.getResourceId(i, -1), rr.getString("name"), rr.getDouble("score"), formatter.format(distance), numbers.getResourceId(i, -1), rr));
+            } catch (JSONException e) {
+            }
+        }
+
+        this.list = list;
+
+        ListView lv = (ListView) findViewById(R.id.listview);
+
+        NavDrawerListAdapter adapter = new NavDrawerListAdapter(getApplicationContext(),
+                list);
+        lv.setAdapter(adapter);
+
+        lv.setOnItemClickListener(new ItemClickListener());
+    }
+
+    private class ItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            Toast toast = Toast.makeText(getApplicationContext(), "" + position, Toast.LENGTH_SHORT);
+            toast.show();
+            selectView(position);
+        }
+    }
+
+    private void selectView(int position) {
+        JSONObject selected = list.get(position).obj;
+        try {
+            newRating(restRooms.get(selected.getString("_id")));
+        } catch (JSONException e) {}
     }
 
     private class LoginTask extends AsyncTask<Context, Void, JSONObject> {
@@ -179,6 +250,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void update() {
+
         Toast toast1 = Toast.makeText(getApplicationContext(), "Update", Toast.LENGTH_SHORT);
         toast1.show();
         GetTask getTask = new GetTask();
@@ -193,8 +265,7 @@ public class MapsActivity extends FragmentActivity {
                     if (user != null) {
                         try {
                             JSONArray userRatings = new JSONArray(user.get("ratings").toString());
-                            Toast toast = Toast.makeText(getApplicationContext(), userRatings.toString(), Toast.LENGTH_LONG);
-                            toast.show();
+
                             for (int i = 0; i < userRatings.length(); i++) {
                                 JSONObject rating = userRatings.getJSONObject(i);
 
@@ -202,8 +273,7 @@ public class MapsActivity extends FragmentActivity {
 
                             }
                         } catch (JSONException e) {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Out", Toast.LENGTH_SHORT);
-                            toast.show();
+
                         }
                     }
                 }
@@ -216,21 +286,27 @@ public class MapsActivity extends FragmentActivity {
         } catch (InterruptedException e) {}
         catch (ExecutionException e) {}
 
-        if (newRestRooms != null) {
-            for (JSONObject rr : newRestRooms) {
-                if (!restRooms.contains(rr)) {
-                    try {
-                        restRooms.add(rr);
-                        mClusterManager.addItem(new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id"), rr.getString("name")));
-                    } catch (JSONException e) {
+        try{
+            if (newRestRooms != null) {
+                for (JSONObject rr : newRestRooms) {
+                    if (!restRooms.containsKey(rr.getString("_id"))) {
+                        try {
+
+                            Toast toast = Toast.makeText(getApplicationContext(), rr.getString("name"), Toast.LENGTH_SHORT);
+                            toast.show();
+                            CustomMarker newMark = new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id"), rr.getString("name"), rr);
+                            mClusterManager.addItem(newMark);
+                            restRooms.put(rr.getString("_id"), newMark);
+                        } catch (JSONException e) {
+                        }
                     }
                 }
-            }
 
-        } else {
-            Toast toast = Toast.makeText(getApplicationContext(), "Cannot connect to server.", Toast.LENGTH_SHORT);
-            toast.show();
-        }
+            } else {
+                Toast toast = Toast.makeText(getApplicationContext(), "Cannot connect to server.", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        } catch (JSONException e) {}
     }
 
 
@@ -312,17 +388,23 @@ public class MapsActivity extends FragmentActivity {
         private final LatLng mPosition;
         private final String id;
         private final String name;
+        private JSONObject rr;
 
-        public CustomMarker(double lat, double lng, String id, String name) {
+        public CustomMarker(double lat, double lng, String id, String name, JSONObject rr) {
             mPosition = new LatLng(lat, lng);
             this.id = id;
             this.name = name;
+            this.rr = rr;
         }
 
         @Override
         public LatLng getPosition() {
             return mPosition;
         }
+        public JSONObject getRR() {
+            return rr;
+        }
+
 
         public boolean equals(CustomMarker other) {
             return other.getID().equals(this.id);
@@ -381,6 +463,9 @@ public class MapsActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        userUpdate = true;
+        update();
+        setList();
     }
 
     /**
@@ -427,20 +512,20 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void newRestroom(View view) {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//        Criteria crta = new Criteria();
-//        crta.setAccuracy(Criteria.ACCURACY_FINE);
-//        crta.setAltitudeRequired(true);
-//        crta.setBearingRequired(true);
-//        crta.setCostAllowed(true);
-//        crta.setPowerRequirement(Criteria.POWER_LOW);
-//        String provider = locationManager.getBestProvider(crta, true);
-//        Toast toast = Toast.makeText(getApplicationContext(), "Provider: " + provider, Toast.LENGTH_SHORT);
-//        toast.show();
-
-//        String provider = LocationManager.GPS_PROVIDER;
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, locationListener);
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+////        Criteria crta = new Criteria();
+////        crta.setAccuracy(Criteria.ACCURACY_FINE);
+////        crta.setAltitudeRequired(true);
+////        crta.setBearingRequired(true);
+////        crta.setCostAllowed(true);
+////        crta.setPowerRequirement(Criteria.POWER_LOW);
+////        String provider = locationManager.getBestProvider(crta, true);
+////        Toast toast = Toast.makeText(getApplicationContext(), "Provider: " + provider, Toast.LENGTH_SHORT);
+////        toast.show();
+//
+////        String provider = LocationManager.GPS_PROVIDER;
+//        lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, locationListener);
+        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
         Intent intent = new Intent(this, NewRestroom.class);
         intent.putExtra("lat", location.getLatitude());

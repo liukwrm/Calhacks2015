@@ -2,32 +2,161 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    tools:context="com.liukwarm.mapsample.NewRestroom">
+    tools:context="com.liukwarm.mapsample.NewRestroom"
+    android:weightSum="1"
+    android:orientation="vertical">
 
-    <EditText
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/name_text"
-        android:hint="name"/>
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Add Restroom"
+        android:id="@+id/textView9"
+        android:textStyle="bold"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:background="#a9d18e"
+        android:textColor="#ffffff"
+        android:textAlignment="gravity"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="30dp" />
 
-
-    <RatingBar
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rating" />
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:background="#a9d18e">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:background="#a9d18e"
+            android:layout_margin="10dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Name: "
+                android:id="@+id/textView5"
+                android:textSize="40dp"
+                android:layout_gravity="center"
+                android:background="#d3d3d3" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/name_text"
+                android:hint="name"
+                android:layout_weight="0.13"
+                android:textSize="40dp"
+                android:layout_gravity="center_vertical|left"
+                android:background="#d3d3d3" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Sinks: "
+            android:id="@+id/textView3"
+            android:textSize="40dp"
+            android:layout_gravity="center" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner"
+            android:spinnerMode="dropdown"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Flushables:"
+            android:id="@+id/textView4"
+            android:textSize="40dp"
+            android:layout_gravity="center" />
+
+        <Spinner
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner2"
+            android:spinnerMode="dropdown"
+            android:layout_gravity="center" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rating"
+            android:layout_gravity="center"
+            android:layout_marginLeft="63dp" />
+
+    </LinearLayout>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/comment"
         android:hint="Comment (Optional)"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal|left"
+        android:layout_weight="0.93"
+        android:background="#d3d3d3"
+        android:layout_margin="10dp" />
 
-    <Button
-        android:layout_height="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:background="#a9d18e"
+        android:gravity="center">
 
-        android:id="@+id/send_new"
-        android:text="send"/>
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+
+            android:id="@+id/send_new"
+            android:text="send"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="center"
+            android:gravity="center" />
+    </LinearLayout>
+
 </LinearLayout>

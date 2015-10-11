@@ -9,7 +9,7 @@ public class NavDrawerItem {
 
     int number;
     String name;
-    double rating;
+    int rating;
     String distance;
     int go;
     JSONObject obj;
@@ -17,7 +17,7 @@ public class NavDrawerItem {
 
     public NavDrawerItem(){}
 
-    public NavDrawerItem(int number, String name, double rating, String distance, int go, JSONObject obj){
+    public NavDrawerItem(int number, String name, int rating, String distance, int go, JSONObject obj){
         this.number = number;
         this.name = name;
         this.rating = rating;

@@ -6,26 +6,28 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_new_restroom">NewRestroom</string>
 
+
+
     <array name="numbers">
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
-        <item>@drawable/kelvin</item>
+        <item>@drawable/ic_looks_one_black_24dp</item>
+        <item>@drawable/ic_looks_two_black_24dp</item>
+        <item>@drawable/ic_looks_3_black_24dp</item>
+        <item>@drawable/ic_looks_4_black_24dp</item>
+        <item>@drawable/ic_looks_5_black_24dp</item>
+        <item>@drawable/ic_looks_6_black_24dp</item>
+    </array>
+
+    <array name="stars">
+        <item>@drawable/stars_0</item>
+        <item>@drawable/star_half</item>
+        <item>@drawable/star_one</item>
+        <item>@drawable/star_one_half</item>
+        <item>@drawable/star_two</item>
+        <item>@drawable/star_two_half</item>
+        <item>@drawable/star_three</item>
+        <item>@drawable/star_three_half</item>
+        <item>@drawable/star_four</item>
+        <item>@drawable/star_four_half</item>
+        <item>@drawable/star_five</item>
     </array>
 </resources>

@@ -17,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -76,11 +77,28 @@ public class MapsActivity extends FragmentActivity {
     private boolean userUpdate = false;
     private LocationManager lm;
     private ArrayList<NavDrawerItem> list;
+
+    private int zero, half, one, one_half, two, two_half, three, three_half, four, four_half, five;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        TypedArray stars = getResources().obtainTypedArray(R.array.stars);
+        zero = stars.getResourceId(0, -1);
+        half = stars.getResourceId(1, -1);
+        one = stars.getResourceId(2, -1);
+        one_half = stars.getResourceId(3, -1);
+        two = stars.getResourceId(4, -1);
+        two_half = stars.getResourceId(5, -1);
+        three = stars.getResourceId(6, -1);
+        three_half = stars.getResourceId(7, -1);
+        four = stars.getResourceId(8, -1);
+        four_half = stars.getResourceId(9, -1);
+        five = stars.getResourceId(10, -1);
+
         String id = getIntent().getExtras().getString("user");
         visited = new HashMap<String, JSONObject>();
         if (id == null) {
@@ -182,11 +200,25 @@ public class MapsActivity extends FragmentActivity {
         ArrayList<NavDrawerItem> list = new ArrayList<NavDrawerItem>();
 
         NumberFormat formatter = new DecimalFormat("#0.0");
-        for (int i = 0; i < 10 && !tm.isEmpty(); i++) {
+        for (int i = 0; i < 6 && !tm.isEmpty(); i++) {
             double distance = tm.firstKey();
             JSONObject rr = tm.remove(tm.firstKey());
             try {
-                list.add(new NavDrawerItem(numbers.getResourceId(i, -1), rr.getString("name"), rr.getDouble("score"), formatter.format(distance), numbers.getResourceId(i, -1), rr));
+                int chosen = zero;
+                double rating = rr.getDouble("score");
+                if (rating >= 4.9) chosen = five;
+                else if (rating >= 4.5) chosen = four_half;
+                else if (rating >= 4.0) chosen = four;
+                else if (rating >= 3.5) chosen = three_half;
+                else if (rating >= 3.0) chosen = three;
+                else if (rating >= 2.5) chosen = two_half;
+                else if (rating >= 2.0) chosen = two;
+                else if (rating >= 1.5) chosen = one_half;
+                else if (rating >= 1) chosen = one;
+                else if (rating >= .5) chosen = half;
+                else if (rating >= 0) chosen = zero;
+
+                list.add(new NavDrawerItem(numbers.getResourceId(i, -1), rr.getString("name"), chosen, formatter.format(distance), numbers.getResourceId(i, -1), rr));
             } catch (JSONException e) {
             }
         }
@@ -194,19 +226,34 @@ public class MapsActivity extends FragmentActivity {
         this.list = list;
 
         ListView lv = (ListView) findViewById(R.id.listview);
+//        Log.i("myTag", lv.toString());
+//        for(int i = 0; i < lv.)
+        lv.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
 
         NavDrawerListAdapter adapter = new NavDrawerListAdapter(getApplicationContext(),
                 list);
         lv.setAdapter(adapter);
 
         lv.setOnItemClickListener(new ItemClickListener());
+
+        mMap.setMyLocationEnabled(true);
     }
+
+    private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
+        @Override
+        public void onMyLocationChange(Location location) {
+            LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(loc));
+            if(mMap != null){
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 16.0f));
+            }
+        }
+    };
 
     private class ItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
-            Toast toast = Toast.makeText(getApplicationContext(), "" + position, Toast.LENGTH_SHORT);
-            toast.show();
+
             selectView(position);
         }
     }
@@ -251,8 +298,7 @@ public class MapsActivity extends FragmentActivity {
 
     private void update() {
 
-        Toast toast1 = Toast.makeText(getApplicationContext(), "Update", Toast.LENGTH_SHORT);
-        toast1.show();
+
         GetTask getTask = new GetTask();
         getTask.execute();
         HashSet<JSONObject> newRestRooms = new HashSet<JSONObject>();
@@ -292,8 +338,7 @@ public class MapsActivity extends FragmentActivity {
                     if (!restRooms.containsKey(rr.getString("_id"))) {
                         try {
 
-                            Toast toast = Toast.makeText(getApplicationContext(), rr.getString("name"), Toast.LENGTH_SHORT);
-                            toast.show();
+
                             CustomMarker newMark = new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id"), rr.getString("name"), rr);
                             mClusterManager.addItem(newMark);
                             restRooms.put(rr.getString("_id"), newMark);
@@ -322,8 +367,7 @@ public class MapsActivity extends FragmentActivity {
         mClusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<CustomMarker>() {
             @Override
             public boolean onClusterItemClick(CustomMarker item) {
-                Toast toast = Toast.makeText(getApplicationContext(), "new rating", Toast.LENGTH_SHORT);
-                toast.show();
+
                 newRating(item);
                 return true;
             }
@@ -340,8 +384,7 @@ public class MapsActivity extends FragmentActivity {
         if (visited.containsKey(item.getID())) {
             intent.putExtra("existing", visited.get(item.getID()).toString());
         } else {
-            Toast toast = Toast.makeText(getApplicationContext(), "Doesnt Exists.", Toast.LENGTH_SHORT);
-            toast.show();
+
             intent.putExtra("existing", (String) null);
         }
         startActivity(intent);

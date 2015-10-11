@@ -56,13 +56,13 @@ public class NavDrawerListAdapter extends BaseAdapter {
         TextView name = (TextView) convertView.findViewById(R.id.name);
         ImageView rb = (ImageView) convertView.findViewById(R.id.ratingBar);
         TextView distance = (TextView) convertView.findViewById(R.id.distance);
-        ImageButton go = (ImageButton) convertView.findViewById(R.id.go);
+//        ImageButton go = (ImageButton) convertView.findViewById(R.id.go);
 
         number.setImageResource(navDrawerItems.get(position).number);
         name.setText(navDrawerItems.get(position).name);
-        rb.setImageResource(navDrawerItems.get(position).number);
-        distance.setText(navDrawerItems.get(position).distance);
-        go.setImageResource(navDrawerItems.get(position).go);
+        rb.setImageResource(navDrawerItems.get(position).rating);
+        distance.setText(navDrawerItems.get(position).distance + "m");
+//        go.setImageResource(navDrawerItems.get(position).go);
 
         return convertView;
     }

@@ -154,19 +154,23 @@ public class MapsActivity extends FragmentActivity {
     private void update() {
         GetTask getTask = new GetTask();
         getTask.execute();
-
+        HashSet<JSONObject> newRestRooms = new HashSet<JSONObject>();
         try {
-            restRooms = (HashSet<JSONObject>) getTask.get();
+            newRestRooms = (HashSet<JSONObject>) getTask.get();
         } catch (InterruptedException e) {}
         catch (ExecutionException e) {}
 
-        if (restRooms != null) {
-            for (JSONObject rr : restRooms) {
-                try {
-                    mClusterManager.addItem(new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id")));
-                } catch (JSONException e) {
+        if (newRestRooms != null) {
+            for (JSONObject rr : newRestRooms) {
+                if (!restRooms.contains(rr)) {
+                    try {
+                        restRooms.add(rr);
+                        mClusterManager.addItem(new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id")));
+                    } catch (JSONException e) {
+                    }
                 }
             }
+
         } else {
             Toast toast = Toast.makeText(getApplicationContext(), "Cannot connect to server.", Toast.LENGTH_SHORT);
             toast.show();

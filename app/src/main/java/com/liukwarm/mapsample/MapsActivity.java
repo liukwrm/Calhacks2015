@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -65,6 +66,7 @@ public class MapsActivity extends FragmentActivity {
     private boolean offlineMode;
     private JSONObject user;
     private HashMap<String, JSONObject> visited;
+    private boolean userUpdate = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +82,7 @@ public class MapsActivity extends FragmentActivity {
             offlineMode = false;
             try {
                 user = new JSONObject(id);
-                if (user != null) {
-                    JSONArray userRatings = new JSONArray(user.get("ratings"));
-                    for (int i = 0; i < userRatings.length(); i++) {
-                        JSONObject rating = userRatings.getJSONObject(i);
-                        visited.put(rating.getString("_id"), rating);
-                    }
-                }
+                userUpdate = true;
             } catch (JSONException e) {}
 
         }
@@ -151,10 +147,70 @@ public class MapsActivity extends FragmentActivity {
 
     }
 
+    private class LoginTask extends AsyncTask<Context, Void, JSONObject> {
+        protected JSONObject doInBackground(Context... urls) {
+            try {
+                String url="http://104.197.87.241/api/login/" + Settings.Secure.getString(urls[0].getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
+                URL object=new URL(url);
+
+                HttpURLConnection con = (HttpURLConnection) object.openConnection();
+
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+                StringBuilder total = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null) {
+                    total.append(line);
+                }
+                JSONObject returned = new JSONObject();
+                try {
+                    returned = new JSONObject(total.toString());
+                } catch (JSONException e) {}
+                return returned;
+            } catch (IOException e){}
+            return null;
+        }
+
+        protected void onPostExecute(Long result) {
+
+        }
+    }
+
     private void update() {
+        Toast toast1 = Toast.makeText(getApplicationContext(), "Update", Toast.LENGTH_SHORT);
+        toast1.show();
         GetTask getTask = new GetTask();
         getTask.execute();
         HashSet<JSONObject> newRestRooms = new HashSet<JSONObject>();
+        if (userUpdate == true) {
+            LoginTask lg = new LoginTask();
+            lg.execute(getApplicationContext());
+            try {
+                if (lg.get() != null) {
+                    user = lg.get();
+                    if (user != null) {
+                        try {
+                            JSONArray userRatings = new JSONArray(user.get("ratings").toString());
+                            Toast toast = Toast.makeText(getApplicationContext(), userRatings.toString(), Toast.LENGTH_LONG);
+                            toast.show();
+                            for (int i = 0; i < userRatings.length(); i++) {
+                                JSONObject rating = userRatings.getJSONObject(i);
+
+                                visited.put(rating.getString("restroom"), rating);
+
+                            }
+                        } catch (JSONException e) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Out", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {}
+            catch (ExecutionException e) {}
+        }
+        userUpdate = false;
         try {
             newRestRooms = (HashSet<JSONObject>) getTask.get();
         } catch (InterruptedException e) {}
@@ -165,7 +221,7 @@ public class MapsActivity extends FragmentActivity {
                 if (!restRooms.contains(rr)) {
                     try {
                         restRooms.add(rr);
-                        mClusterManager.addItem(new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id")));
+                        mClusterManager.addItem(new CustomMarker((Double) rr.get("lat"), (Double) rr.get("lng"), (String) rr.get("_id"), rr.getString("name")));
                     } catch (JSONException e) {
                     }
                 }
@@ -204,12 +260,17 @@ public class MapsActivity extends FragmentActivity {
         Intent intent = new Intent(this, RatingActivity.class);
         intent.putExtra("user", user.toString());
         intent.putExtra("restID", item.getID());
+        intent.putExtra("name", item.getName());
         if (visited.containsKey(item.getID())) {
             intent.putExtra("existing", visited.get(item.getID()).toString());
         } else {
+            Toast toast = Toast.makeText(getApplicationContext(), "Doesnt Exists.", Toast.LENGTH_SHORT);
+            toast.show();
             intent.putExtra("existing", (String) null);
         }
         startActivity(intent);
+        userUpdate = true;
+        update();
     }
 
 
@@ -250,10 +311,12 @@ public class MapsActivity extends FragmentActivity {
     public class CustomMarker implements ClusterItem {
         private final LatLng mPosition;
         private final String id;
+        private final String name;
 
-        public CustomMarker(double lat, double lng, String id) {
+        public CustomMarker(double lat, double lng, String id, String name) {
             mPosition = new LatLng(lat, lng);
             this.id = id;
+            this.name = name;
         }
 
         @Override
@@ -267,6 +330,10 @@ public class MapsActivity extends FragmentActivity {
 
         public String getID() {
             return this.id;
+        }
+
+        public String getName() {
+            return this.name;
         }
     }
 
@@ -387,6 +454,8 @@ public class MapsActivity extends FragmentActivity {
 //        intent.putExtra("lng", 0.0);
 
         startActivity(intent);
+        userUpdate = true;
+        update();
     }
 
 }

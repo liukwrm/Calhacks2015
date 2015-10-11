@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -40,11 +41,13 @@ public class RatingActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_rating);
         Intent intent = getIntent();
+        String name = getIntent().getExtras().getString("name");
         String id = getIntent().getExtras().getString("user");
         String id2 = getIntent().getExtras().getString("existing");
         this.restID = getIntent().getExtras().getString("restID");
 
-
+        TextView tv = (TextView) findViewById(R.id.name);
+        tv.setText(name);
 
         if (this.restID == null) {
             finish();
@@ -65,6 +68,8 @@ public class RatingActivity extends Activity {
                 existing = new JSONObject(id2);
             } catch (JSONException e) {}
         }
+
+
 
         if (existing != null) {
             RatingBar rb = (RatingBar) findViewById(R.id.rating);

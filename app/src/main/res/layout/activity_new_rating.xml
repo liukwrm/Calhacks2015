@@ -1,32 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Restroom"
-        android:id="@+id/name" />
+        android:text="Rate this Restroom"
+        android:id="@+id/textView8"
+        android:textStyle="bold"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:background="#a9d18e"
+        android:textColor="#ffffff"
+        android:textAlignment="gravity"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="30dp" />
 
-    <RatingBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/rating" />
-
-    <EditText
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/comment"
-        android:hint="Comment (Optional)"
-        android:layout_gravity="center_horizontal" />
+        android:layout_height="54dp"
+        android:layout_gravity="center"
+        android:background="#a9d18e">
 
-    <Button
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Restroom"
+            android:id="@+id/textView10"
+            android:textSize="40dp"
+            android:layout_gravity="center"
+            android:background="#d3d3d3"
+            android:layout_margin="5dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/send_new"
-        android:layout_gravity="center_horizontal"
-        android:text="Send" />
+        android:layout_height="66dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:background="#a9d18e">
+
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ratingBar2"
+            android:layout_gravity="center"
+            android:layout_marginRight="0dp"
+            android:background="#a9d18e"
+            android:numStars="5"
+            android:layout_marginLeft="66dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_weight="0.99"
+        android:weightSum="1"
+        android:background="#a9d18e">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/editText2"
+            android:hint="Comment (Optional)"
+            android:layout_gravity="center"
+            android:backgroundTint="#d3d3d3"
+            android:background="#d3d3d3"
+            android:layout_margin="10dp"
+            android:gravity="left|top" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_weight="0.99"
+        android:weightSum="1"
+        android:background="#a9d18e" >
+
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/button2"
+            android:text="send"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp" />
+
+    </LinearLayout>
+
 </LinearLayout>

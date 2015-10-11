@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Restroom"
-            android:id="@+id/textView10"
+            android:id="@+id/name"
             android:textSize="40dp"
             android:layout_gravity="center"
             android:background="#d3d3d3"
@@ -52,7 +52,7 @@
         <RatingBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/ratingBar2"
+            android:id="@+id/rating"
             android:layout_gravity="center"
             android:layout_marginRight="0dp"
             android:background="#a9d18e"
@@ -72,7 +72,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/editText2"
+            android:id="@+id/comment"
             android:hint="Comment (Optional)"
             android:layout_gravity="center"
             android:backgroundTint="#d3d3d3"
@@ -92,7 +92,7 @@
         <Button
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:id="@+id/button2"
+            android:id="@+id/send_new"
             android:text="send"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp" />

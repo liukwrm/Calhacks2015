@@ -10,11 +10,12 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:id="@+id/seen"
+        android:background="#ffffff"
         >
         <ImageView
             android:layout_height="fill_parent"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:id="@+id/number"
             android:layout_gravity="center"
             android:focusable="false"
@@ -29,13 +30,14 @@
             android:layout_weight="3"
             android:layout_gravity="center"
             android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:focusableInTouchMode="false"
+            android:textColor="#000000" />
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:id="@+id/ratingBar"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:layout_gravity="center"
             android:focusable="false"
             android:focusableInTouchMode="false"/>
@@ -46,10 +48,11 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
             android:id="@+id/distance"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:layout_gravity="center"
             android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:focusableInTouchMode="false"
+            android:textColor="#000000" />
 
         <ImageButton
             android:layout_height="fill_parent"

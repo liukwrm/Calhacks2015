@@ -46,6 +46,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -63,6 +64,7 @@ public class MapsActivity extends FragmentActivity {
     private LocationListener locationListener;
     private boolean offlineMode;
     private JSONObject user;
+    private HashMap<String, JSONObject> visited;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
         String id = getIntent().getExtras().getString("user");
+        visited = new HashMap<String, JSONObject>();
         if (id == null) {
             offlineMode = true;
             user = null;
@@ -77,7 +80,15 @@ public class MapsActivity extends FragmentActivity {
             offlineMode = false;
             try {
                 user = new JSONObject(id);
+                if (user != null) {
+                    JSONArray userRatings = new JSONArray(user.get("ratings"));
+                    for (int i = 0; i < userRatings.length(); i++) {
+                        JSONObject rating = userRatings.getJSONObject(i);
+                        visited.put(rating.getString("_id"), rating);
+                    }
+                }
             } catch (JSONException e) {}
+
         }
 
         restRooms = new HashSet<JSONObject>();
@@ -186,10 +197,14 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void newRating(CustomMarker item) {
-
         Intent intent = new Intent(this, RatingActivity.class);
         intent.putExtra("user", user.toString());
         intent.putExtra("restID", item.getID());
+        if (visited.containsKey(item.getID())) {
+            intent.putExtra("existing", visited.get(item.getID()).toString());
+        } else {
+            intent.putExtra("existing", (String) null);
+        }
         startActivity(intent);
     }
 
@@ -359,6 +374,7 @@ public class MapsActivity extends FragmentActivity {
         Intent intent = new Intent(this, NewRestroom.class);
         intent.putExtra("lat", location.getLatitude());
         intent.putExtra("lng", location.getLongitude());
+        intent.putExtra("user", user.toString());
 
 //        Toast toast = Toast.makeText(getApplicationContext(), "Current: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT);
 //        toast.show();

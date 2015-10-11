@@ -33,6 +33,7 @@ public class RatingActivity extends Activity {
     private double rating;
     private String comment;
     private String restID;
+    private JSONObject existing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,10 @@ public class RatingActivity extends Activity {
         setContentView(R.layout.activity_new_rating);
         Intent intent = getIntent();
         String id = getIntent().getExtras().getString("user");
+        String id2 = getIntent().getExtras().getString("existing");
         this.restID = getIntent().getExtras().getString("restID");
+
+
 
         if (this.restID == null) {
             finish();
@@ -54,12 +58,31 @@ public class RatingActivity extends Activity {
             } catch (JSONException e) {}
         }
 
-        Button button = (Button) findViewById(R.id.send_new);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                newRatingRequest();
-            }
-        });
+        if (id2 == null) {
+            existing = null;
+        } else {
+            try {
+                existing = new JSONObject(id2);
+            } catch (JSONException e) {}
+        }
+
+        if (existing != null) {
+            RatingBar rb = (RatingBar) findViewById(R.id.rating);
+            try {
+                rb.setRating((float) existing.getDouble("score"));
+            } catch (JSONException e) {}
+            rb.setEnabled(false);
+            Button button = (Button) findViewById(R.id.send_new);
+            button.setVisibility(View.GONE);
+
+        } else {
+            Button button = (Button) findViewById(R.id.send_new);
+            button.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    newRatingRequest();
+                }
+            });
+        }
     }
 
     @Override

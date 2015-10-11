@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -35,7 +36,9 @@ public class NewRestroom extends Activity {
 
     private double lat, lng;
     private String name;
-
+    private JSONObject user;
+    private String comment;
+    private double rating;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +46,18 @@ public class NewRestroom extends Activity {
         Intent intent = getIntent();
         lat = intent.getExtras().getDouble("lat");
         lng = intent.getExtras().getDouble("lng");
+
+        String id = getIntent().getExtras().getString("user");
+
+        if (id == null) {
+            user = null;
+            finish();
+        } else {
+            try {
+                user = new JSONObject(id);
+            } catch (JSONException e) {}
+        }
+
         name = "Restroom";
 
         Button button = (Button) findViewById(R.id.send_new);
@@ -79,6 +94,12 @@ public class NewRestroom extends Activity {
 
         JSONObject send = new JSONObject();
 
+        EditText et2 = (EditText) findViewById(R.id.comment);
+        comment = et2.getText().toString();
+
+        RatingBar rb = (RatingBar) findViewById(R.id.rating);
+        rating = rb.getRating();
+
         EditText et = (EditText) findViewById(R.id.name_text);
         name = et.getText().toString();
 
@@ -86,6 +107,9 @@ public class NewRestroom extends Activity {
             send.put("lat", lat);
             send.put("lng", lng);
             send.put("name", name);
+            send.put("score", rating);
+            send.put("user", user.get("_id"));
+            send.put("description", comment);
         } catch(JSONException e){}
 
 
